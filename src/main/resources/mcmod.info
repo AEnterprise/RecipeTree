@@ -1,0 +1,16 @@
+[
+{
+  "modid": "recipetree",
+  "name": "Recipe Tree",
+  "description": "Ingame planning of your crafting steps",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["AEnterprise"],
+  "credits": "Coded by AEnterprise, original idea by MinecraftingDAD",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
