@@ -17,7 +17,7 @@ public class Tree<T> implements Iterable<Branch<T>> {
 
 	@Override
 	public Iterator<Branch<T>> iterator() {
-		return null;
+		return new TreeIterator<>(this);
 	}
 
 	public List<Branch<T>> getAllBranches() {
