@@ -30,4 +30,6 @@ public class Tree<T> implements Iterable<Branch<T>> {
 	public void removeBranch(Branch<T> branch) {
 		root.removeBranch(branch);
 	}
+
+    public void addBranch(Branch<T> branch) {root.addBranch(branch); }
 }
