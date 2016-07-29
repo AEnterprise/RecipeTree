@@ -24,6 +24,10 @@ public class Branch<T> {
 		this.parent = parent;
 	}
 
+	public void addBranch(T leaf) {
+		addBranch(new Branch<T>(leaf));
+	}
+
 	public void addBranch(Branch<T> branch) {
 		subBranches.add(branch);
 	}
@@ -52,13 +56,21 @@ public class Branch<T> {
 	}
 
 	private void printStructure(String prefix, boolean isRoot, boolean isTail) {
-		Log.info(prefix + (isRoot ? "" : isTail ? "└── " : "├── ") + leaf.toString());
+		Log.info(prefix + (isRoot ? "" : isTail ? "└── " : "├── ") + "Leaf: " + leaf.toString() + ", Sub-branches: " + getNumBranches());
 		for (int i = 0; i < subBranches.size() - 1; i++) {
 			subBranches.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false, false);
 		}
 		if (subBranches.size() > 0) {
 			subBranches.get(subBranches.size() - 1).printStructure(prefix + (isTail ? "    " : "│   "), false, true);
 		}
+	}
+
+	public int getNumBranches() {
+		int branches = subBranches.size();
+		for (Branch branch : subBranches) {
+			branches += branch.getNumBranches();
+		}
+		return branches;
 	}
 
     @Override

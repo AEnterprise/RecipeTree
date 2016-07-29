@@ -1,11 +1,12 @@
 package info.aenterprise.recipeTree.gui;
 
 import info.aenterprise.recipeTree.tree.Branch;
-import info.aenterprise.recipeTree.tree.RecipeLeaf;
+import info.aenterprise.recipeTree.tree.Leaf;
 import info.aenterprise.recipeTree.tree.Tree;
 import info.aenterprise.recipeTree.util.Log;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,7 +26,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GuiRecipeTree extends GuiContainer {
 	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/overlay.png");
 
-	private Tree<RecipeLeaf> tree;
+	private Tree<Leaf> tree;
+	private Branch<Leaf> selected = null;
+	private ItemStack expectedOutput = null;
 
 	public GuiRecipeTree() {
 		super(new DummyContainer());
@@ -47,16 +50,41 @@ public class GuiRecipeTree extends GuiContainer {
 
 	public void recieveRecipe(IRecipeWrapper recipe) {
 		if (tree == null) {
-			tree = new Tree<>(new RecipeLeaf((ItemStack) recipe.getOutputs().get(0)));
-		}
-		for (Object o : recipe.getInputs()) {
-			if (o instanceof ItemStack) {
-				tree.addBranch(new Branch<RecipeLeaf>(new RecipeLeaf((ItemStack) o)));
+			tree = new Tree<>(new Leaf((ItemStack) recipe.getOutputs().get(0)));
+			for (Object o : recipe.getInputs()) {
+				ItemStack stack = null;
+				if (o instanceof ItemStack) {
+					stack = (ItemStack) o;
+				} else if (o instanceof List) {
+					stack = (ItemStack) ((List) o).get(0);
+				}
+				if (stack != null) {
+					Branch<Leaf> branch = new Branch<>(new Leaf(stack));
+					tree.addBranch(branch);
+					selected = branch;
+					expectedOutput = stack;
+				}
+			}
+		} else {
+			boolean found = false;
+			for (Object o : recipe.getOutputs()) {
+				if (!found && o instanceof ItemStack && ((ItemStack) o).isItemEqual(expectedOutput)) {
+					ItemStack stack = (ItemStack) o;
+					Branch<Leaf> branch = new Branch<>(new Leaf(stack));
+					selected.addBranch(branch);
+					selected = branch;
+					expectedOutput = stack;
+					found = true;
+				}
 			}
 		}
-		tree.printStructure();
+		updateTree();
 	}
 
+	private void updateTree() {
+
+		tree.printStructure();
+	}
 	private static class DummyContainer extends Container {
 
 		public DummyContainer() {

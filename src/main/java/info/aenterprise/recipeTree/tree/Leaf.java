@@ -6,10 +6,10 @@ import net.minecraft.item.ItemStack;
  * Copyright (c) 2016, AEnterprise
  * http://www.aenterprise.info/
  */
-public class RecipeLeaf {
+public class Leaf {
 	private ItemStack stack;
 
-	public RecipeLeaf(ItemStack stack) {
+	public Leaf(ItemStack stack) {
 		this.stack = stack;
 	}
 

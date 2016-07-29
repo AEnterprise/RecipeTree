@@ -31,11 +31,23 @@ public class Tree<T> implements Iterable<Branch<T>> {
 		root.removeBranch(branch);
 	}
 
+	public void addBranch(T leaf) {
+		addBranch(new Branch<T>(leaf));
+	}
+
 	public void addBranch(Branch<T> branch) {
 		root.addBranch(branch);
 	}
 
 	public void printStructure() {
 		root.printStructure(true);
+	}
+
+	public List<T> getAllLeafs() {
+		List<T> list = new ArrayList<T>();
+		for (Branch<T> branch : this) {
+			list.add(branch.leaf);
+		}
+		return list;
 	}
 }
