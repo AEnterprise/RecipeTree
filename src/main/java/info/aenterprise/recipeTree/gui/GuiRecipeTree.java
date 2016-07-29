@@ -68,17 +68,34 @@ public class GuiRecipeTree extends GuiContainer {
 		} else {
 			boolean found = false;
 			for (Object o : recipe.getOutputs()) {
-				if (!found && o instanceof ItemStack && ((ItemStack) o).isItemEqual(expectedOutput)) {
-					ItemStack stack = (ItemStack) o;
-					Branch<Leaf> branch = new Branch<>(new Leaf(stack));
-					selected.addBranch(branch);
-					selected = branch;
-					expectedOutput = stack;
+				if (o instanceof ItemStack && ((ItemStack) o).isItemEqual(expectedOutput)) {
+					branchOut(recipe.getInputs());
 					found = true;
+					break;
 				}
+			}
+			if (!found) {
+				Log.info("Got a recipe for " + recipe.getOutputs().get(0) + "but expected a recipe for " + expectedOutput);
 			}
 		}
 		updateTree();
+	}
+
+	private void branchOut(List inputs) {
+		Branch<Leaf> selection = selected;
+		for (Object o : inputs) {
+			ItemStack stack = null;
+			if (o instanceof ItemStack)
+				stack = (ItemStack) o;
+			if (o instanceof List)
+				stack = (ItemStack) ((List) o).get(0);
+			if (stack != null) {
+				Branch<Leaf> branch = new Branch<Leaf>(new Leaf(stack));
+				selection.addBranch(branch);
+				selected = branch;
+				expectedOutput = stack;
+			}
+		}
 	}
 
 	private void updateTree() {

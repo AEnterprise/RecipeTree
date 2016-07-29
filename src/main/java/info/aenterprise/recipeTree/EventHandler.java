@@ -35,7 +35,7 @@ public class EventHandler {
 	@SubscribeEvent(priority = EventPriority.LOWEST) //making sure we are drawing after JEI
 	public void draw(GuiScreenEvent.BackgroundDrawnEvent event) {
 		if (event.getGui() instanceof RecipesGui) {
-			RecipeGuiHook.update((RecipesGui) event.getGui());
+			RecipeGuiHook.render((RecipesGui) event.getGui());
 
 		}
 	}
@@ -43,11 +43,14 @@ public class EventHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.HIGH) //making sure we are catching it before JEI does
 	public void click(GuiScreenEvent.MouseInputEvent.Pre event) {
-		if (Mouse.getEventButton() > -1 && Mouse.getEventButtonState()) {
-			int x = Mouse.getEventX() * event.getGui().width / event.getGui().mc.displayWidth;
-			int y = event.getGui().height - Mouse.getEventY() * event.getGui().height / event.getGui().mc.displayHeight - 1;
-			if (RecipeGuiHook.click(x, y))
-				event.setCanceled(true);
+		if (event.getGui() instanceof RecipesGui) {
+			RecipeGuiHook.updateCache((RecipesGui) event.getGui());
+			if (Mouse.getEventButton() > -1 && Mouse.getEventButtonState()) {
+				int x = Mouse.getEventX() * event.getGui().width / event.getGui().mc.displayWidth;
+				int y = event.getGui().height - Mouse.getEventY() * event.getGui().height / event.getGui().mc.displayHeight - 1;
+				if (RecipeGuiHook.click(x, y))
+					event.setCanceled(true);
+			}
 		}
 
 	}

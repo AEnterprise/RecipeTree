@@ -24,7 +24,7 @@ public class Branch<T> {
 		this.parent = parent;
 	}
 
-	public void addBranch(T leaf) {
+	public void addBranchWithLeaf(T leaf) {
 		addBranch(new Branch<T>(leaf));
 	}
 

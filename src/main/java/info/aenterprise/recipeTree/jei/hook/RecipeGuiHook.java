@@ -34,23 +34,20 @@ public class RecipeGuiHook {
 
 	@SideOnly(Side.CLIENT)
 	@SuppressWarnings("unchecked")
-	public static void update(RecipesGui recipesGui) {
+	public static void render(RecipesGui recipesGui) {
 		if (!shouldHook)
 			return;
-		List<RecipeLayout> list = (List<RecipeLayout>) ReflectionHelper.getValue(recipesGui, "recipeLayouts");
-		if (list != cache || buttons.size() != cache.size())
-			updateCache(list);
 		for (SelectButton button: buttons) {
 			button.render(recipesGui.mc);
 		}
 	}
 
 
-
-	private static void updateCache(List<RecipeLayout> list) {
-		cache = list;
+	@SuppressWarnings("unchecked")
+	public static void updateCache(RecipesGui gui) {
+		cache = (List<RecipeLayout>) ReflectionHelper.getValue(gui, "recipeLayouts");
 		buttons.clear();
-		for (RecipeLayout layout: list) {
+		for (RecipeLayout layout : cache) {
 			IRecipeCategory category = (IRecipeCategory) ReflectionHelper.getValue(layout, "recipeCategory");
 			IRecipeWrapper recipe = (IRecipeWrapper) ReflectionHelper.getValue(layout, "recipeWrapper");
 			buttons.add(new SelectButton(layout.getPosX() + category.getBackground().getWidth() + 2, layout.getPosY() + category.getBackground().getHeight() - 8, recipe));
