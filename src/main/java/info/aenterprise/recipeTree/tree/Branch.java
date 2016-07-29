@@ -28,9 +28,9 @@ public class Branch<T> {
 
 	public List<Branch<T>> getAllBranches() {
 		ArrayList<Branch<T>> list = new ArrayList<>();
-		list.addAll(subBranches);
 		for (Branch<T> branch : subBranches) {
-			list.addAll(branch.subBranches);
+			list.add(branch);
+			list.addAll(branch.getAllBranches());
 		}
 		return list;
 	}
