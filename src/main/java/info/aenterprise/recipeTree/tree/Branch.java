@@ -44,4 +44,26 @@ public class Branch<T> {
 			}
 		}
 	}
+
+	public void printStructure() {
+		printStructure("", true);
+	}
+
+	private void printStructure(String prefix, boolean isTail) {
+		System.out.println(prefix + (isTail ? "└── " : "├── ") + leaf.toString());
+		for (int i = 0; i < subBranches.size() - 1; i++) {
+			subBranches.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false);
+		}
+		if (subBranches.size() > 0) {
+			subBranches.get(subBranches.size() - 1).printStructure(prefix + (isTail ?"    " : "│   "), true);
+		}
+	}
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Branch{");
+        sb.append("leaf=").append(leaf);
+        sb.append('}');
+        return sb.toString();
+    }
 }
