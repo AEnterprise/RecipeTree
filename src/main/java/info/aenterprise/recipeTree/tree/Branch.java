@@ -1,5 +1,7 @@
 package info.aenterprise.recipeTree.tree;
 
+import info.aenterprise.recipeTree.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,17 +47,17 @@ public class Branch<T> {
 		}
 	}
 
-	public void printStructure() {
-		printStructure("", true);
+	public void printStructure(boolean isRoot) {
+		printStructure("", isRoot, true);
 	}
 
-	private void printStructure(String prefix, boolean isTail) {
-		System.out.println(prefix + (isTail ? "└── " : "├── ") + leaf.toString());
+	private void printStructure(String prefix, boolean isRoot, boolean isTail) {
+		Log.info(prefix + (isRoot ? "" : isTail ? "└── " : "├── ") + leaf.toString());
 		for (int i = 0; i < subBranches.size() - 1; i++) {
-			subBranches.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false);
+			subBranches.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false, false);
 		}
 		if (subBranches.size() > 0) {
-			subBranches.get(subBranches.size() - 1).printStructure(prefix + (isTail ?"    " : "│   "), true);
+			subBranches.get(subBranches.size() - 1).printStructure(prefix + (isTail ? "    " : "│   "), false, true);
 		}
 	}
 

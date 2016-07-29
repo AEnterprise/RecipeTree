@@ -38,7 +38,7 @@ public class RecipeGuiHook {
 		if (!shouldHook)
 			return;
 		List<RecipeLayout> list = (List<RecipeLayout>) ReflectionHelper.getValue(recipesGui, "recipeLayouts");
-		if (cache.size() != list.size() || list.size() != buttons.size() || !cache.containsAll(list))
+		if (list != cache || buttons.size() != cache.size())
 			updateCache(list);
 		for (SelectButton button: buttons) {
 			button.render(recipesGui.mc);
@@ -55,6 +55,20 @@ public class RecipeGuiHook {
 			IRecipeWrapper recipe = (IRecipeWrapper) ReflectionHelper.getValue(layout, "recipeWrapper");
 			buttons.add(new SelectButton(layout.getPosX() + category.getBackground().getWidth() + 2, layout.getPosY() + category.getBackground().getHeight() - 8, recipe));
 		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static boolean click(int x, int y) {
+		if (!shouldHook)
+			return false;
+		for (SelectButton button : buttons) {
+			if (button.getBounds().contains(x, y)) {
+				gui.open();
+				gui.recieveRecipe(button.getRecipe());
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
