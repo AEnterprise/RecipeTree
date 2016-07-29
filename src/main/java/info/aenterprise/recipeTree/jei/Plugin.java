@@ -1,6 +1,9 @@
 package info.aenterprise.recipeTree.jei;
 
-import mezz.jei.api.*;
+import mezz.jei.api.BlankModPlugin;
+import mezz.jei.api.IJeiRuntime;
+import mezz.jei.api.IModRegistry;
+import mezz.jei.api.JEIPlugin;
 
 import javax.annotation.Nonnull;
 
@@ -11,11 +14,10 @@ import javax.annotation.Nonnull;
 @JEIPlugin
 public class Plugin extends BlankModPlugin {
 	public static IJeiRuntime runtime;
-	public static IJeiHelpers helpers;
 
 	@Override
 	public void register(@Nonnull IModRegistry registry) {
-		helpers = registry.getJeiHelpers();
+
 	}
 
 	@Override
