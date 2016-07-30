@@ -1,5 +1,7 @@
 package info.aenterprise.recipeTree.tree;
 
+import info.aenterprise.recipeTree.tree.visiting.Visitable;
+import info.aenterprise.recipeTree.tree.visiting.Visitor;
 import info.aenterprise.recipeTree.util.Log;
 
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import com.google.common.collect.ImmutableList;
  * Copyright (c) 2016, AEnterprise
  * http://www.aenterprise.info/
  */
-public class TreeNode<T> implements Iterable<TreeNode<T>> {
+public class TreeNode<T> implements Iterable<TreeNode<T>>, Visitable {
 	private T data;
 	private List<TreeNode<T>> subNodes;
 	private TreeNode<T> parent;
@@ -85,6 +87,15 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 		return branches;
 	}
 
+	public int getMostChilds() {
+		int count = subNodes.size();
+		for (TreeNode node : subNodes) {
+			if (node.getMostChilds() > count)
+				count = node.getMostChilds();
+		}
+		return count;
+	}
+
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer("Branch{");
@@ -106,5 +117,12 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 
 	public TreeNode<T> getParent() {
 		return parent;
+	}
+
+	@Override
+	public void accept(Visitor visitor) {
+		for (TreeNode<T> node : subNodes) {
+			node.accept(visitor);
+		}
 	}
 }

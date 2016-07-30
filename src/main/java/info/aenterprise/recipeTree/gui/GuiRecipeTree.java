@@ -46,6 +46,13 @@ public class GuiRecipeTree extends GuiContainer {
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
 		drawTexturedModalRect((this.width - this.xSize) / 2, (this.height - this.ySize) / 2, 0, 0, 200, 200);
+
+		if (root != null) {
+			drawTexturedModalRect(root.getData().getX(), root.getData().getY(), 26, 201, 20, 20);
+			for (TreeNode<NodeData> node : root) {
+				drawTexturedModalRect(node.getData().getX(), node.getData().getY(), 26, 201, 20, 20);
+			}
+		}
 	}
 
 	public void recieveRecipe(IRecipeWrapper recipe) {
@@ -90,7 +97,7 @@ public class GuiRecipeTree extends GuiContainer {
 			if (o instanceof List)
 				stack = (ItemStack) ((List) o).get(0);
 			if (stack != null) {
-				TreeNode<NodeData> treeNode = new TreeNode<NodeData>(new NodeData(stack));
+				TreeNode<NodeData> treeNode = new TreeNode<>(new NodeData(stack));
 				selection.addBranch(treeNode);
 				selected = treeNode;
 				expectedOutput = stack;
@@ -100,7 +107,7 @@ public class GuiRecipeTree extends GuiContainer {
 
 	private void updateTree() {
 		NodeData data = root.getData();
-		data.setPos(0, 0);
+		data.setPos(50, 50);
 		updateNodes(root.getSubNodes());
 		root.printStructure();
 	}
@@ -111,7 +118,11 @@ public class GuiRecipeTree extends GuiContainer {
 			next.addAll(node.getSubNodes());
 			NodeData data = node.getData();
 			TreeNode<NodeData> parent = node.getParent();
-			data.setPos((parent.getData().getX() - (parent.getSubNodes().size() * (36 * (parent.getNumBranches() + 1))) / 2) + ((parent.getSubNodes().indexOf(node) + 1) * (36 * (parent.getNumBranches()))), parent.getData().getY() + 36);
+			int x = parent.getData().getX() + ((parent.getSubNodes().indexOf(node) + 1) * (36 * (node.getNumBranches() + 1)));
+			x += node.getNumBranches() * 18;
+			int y = parent.getData().getY() + 36;
+			data.setPos(x, y);
+			//data.setPos((parent.getData().getX() - (parent.getSubNodes().size() * (36 * (node.getMostChilds()+1))) / 2) + ((parent.getSubNodes().indexOf(node) + 1) * (36 * (node.getNumBranches()+1))), parent.getData().getY() + 36);
 		}
 		if (!next.isEmpty())
 			updateNodes(next);

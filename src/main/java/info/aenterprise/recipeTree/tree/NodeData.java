@@ -31,4 +31,5 @@ public class NodeData {
 	public String toString() {
 		return "Stack: " + stack.toString() + ", X: " + x + ", Y: " + y;
 	}
+
 }
