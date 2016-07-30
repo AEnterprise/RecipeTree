@@ -5,6 +5,7 @@ import info.aenterprise.recipeTree.tree.TreeNode;
 import info.aenterprise.recipeTree.util.Log;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -23,9 +24,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @SideOnly(Side.CLIENT)
 public class GuiRecipeTree extends GuiContainer {
-	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/overlay.png");
+	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/gui.png");
 
-	private TreeNode<NodeData> tree;
+	private TreeNode<NodeData> root;
 	private TreeNode<NodeData> selected = null;
 	private ItemStack expectedOutput = null;
 
@@ -48,8 +49,8 @@ public class GuiRecipeTree extends GuiContainer {
 	}
 
 	public void recieveRecipe(IRecipeWrapper recipe) {
-		if (tree == null) {
-			tree = new TreeNode<>(new NodeData((ItemStack) recipe.getOutputs().get(0)));
+		if (root == null) {
+			root = new TreeNode<>(new NodeData((ItemStack) recipe.getOutputs().get(0)));
 			for (Object o : recipe.getInputs()) {
 				ItemStack stack = null;
 				if (o instanceof ItemStack) {
@@ -59,7 +60,7 @@ public class GuiRecipeTree extends GuiContainer {
 				}
 				if (stack != null) {
 					TreeNode<NodeData> treeNode = new TreeNode<>(new NodeData(stack));
-					tree.addBranch(treeNode);
+					root.addBranch(treeNode);
 					selected = treeNode;
 					expectedOutput = stack;
 				}
@@ -98,8 +99,24 @@ public class GuiRecipeTree extends GuiContainer {
 	}
 
 	private void updateTree() {
-		tree.printStructure();
+		NodeData data = root.getData();
+		data.setPos(0, 0);
+		updateNodes(root.getSubNodes());
+		root.printStructure();
 	}
+
+	private void updateNodes(List<TreeNode<NodeData>> list) {
+		List<TreeNode<NodeData>> next = new ArrayList<>();
+		for (TreeNode<NodeData> node : list) {
+			next.addAll(node.getSubNodes());
+			NodeData data = node.getData();
+			TreeNode<NodeData> parent = node.getParent();
+			data.setPos((parent.getData().getX() - (parent.getSubNodes().size() * (36 * (parent.getNumBranches() + 1))) / 2) + ((parent.getSubNodes().indexOf(node) + 1) * (36 * (parent.getNumBranches()))), parent.getData().getY() + 36);
+		}
+		if (!next.isEmpty())
+			updateNodes(next);
+	}
+
 	private static class DummyContainer extends Container {
 
 		public DummyContainer() {

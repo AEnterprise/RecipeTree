@@ -5,6 +5,7 @@ import info.aenterprise.recipeTree.util.Log;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Copyright (c) 2016, AEnterprise
@@ -26,12 +27,21 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 		this.parent = parent;
 	}
 
+	public T getData() {
+		return data;
+	}
+
 	public void addBranchWithLeaf(T leaf) {
 		addBranch(new TreeNode<T>(leaf));
 	}
 
 	public void addBranch(TreeNode<T> treeNode) {
+		treeNode.parent = this;
 		subNodes.add(treeNode);
+	}
+
+	public List<TreeNode<T>> getSubNodes() {
+		return ImmutableList.copyOf(subNodes);
 	}
 
 	public List<TreeNode<T>> getAllBranches() {
@@ -92,5 +102,9 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 		if (parent == null)
 			return 0;
 		return parent.getLayer() + 1;
+	}
+
+	public TreeNode<T> getParent() {
+		return parent;
 	}
 }
