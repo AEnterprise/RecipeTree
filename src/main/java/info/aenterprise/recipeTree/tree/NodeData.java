@@ -6,12 +6,14 @@ import net.minecraft.item.ItemStack;
  * Copyright (c) 2016, AEnterprise
  * http://www.aenterprise.info/
  */
-public class Leaf {
+public class NodeData {
 	private ItemStack stack;
+	private int x, y;
 
-	public Leaf(ItemStack stack) {
+	public NodeData(ItemStack stack) {
 		this.stack = stack;
 	}
+
 
 	@Override
 	public String toString() {

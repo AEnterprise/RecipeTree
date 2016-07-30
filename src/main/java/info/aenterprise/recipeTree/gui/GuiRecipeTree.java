@@ -1,8 +1,7 @@
 package info.aenterprise.recipeTree.gui;
 
-import info.aenterprise.recipeTree.tree.Branch;
-import info.aenterprise.recipeTree.tree.Leaf;
-import info.aenterprise.recipeTree.tree.Tree;
+import info.aenterprise.recipeTree.tree.NodeData;
+import info.aenterprise.recipeTree.tree.TreeNode;
 import info.aenterprise.recipeTree.util.Log;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
@@ -26,8 +25,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GuiRecipeTree extends GuiContainer {
 	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/overlay.png");
 
-	private Tree<Leaf> tree;
-	private Branch<Leaf> selected = null;
+	private TreeNode<NodeData> tree;
+	private TreeNode<NodeData> selected = null;
 	private ItemStack expectedOutput = null;
 
 	public GuiRecipeTree() {
@@ -50,7 +49,7 @@ public class GuiRecipeTree extends GuiContainer {
 
 	public void recieveRecipe(IRecipeWrapper recipe) {
 		if (tree == null) {
-			tree = new Tree<>(new Leaf((ItemStack) recipe.getOutputs().get(0)));
+			tree = new TreeNode<>(new NodeData((ItemStack) recipe.getOutputs().get(0)));
 			for (Object o : recipe.getInputs()) {
 				ItemStack stack = null;
 				if (o instanceof ItemStack) {
@@ -59,9 +58,9 @@ public class GuiRecipeTree extends GuiContainer {
 					stack = (ItemStack) ((List) o).get(0);
 				}
 				if (stack != null) {
-					Branch<Leaf> branch = new Branch<>(new Leaf(stack));
-					tree.addBranch(branch);
-					selected = branch;
+					TreeNode<NodeData> treeNode = new TreeNode<>(new NodeData(stack));
+					tree.addBranch(treeNode);
+					selected = treeNode;
 					expectedOutput = stack;
 				}
 			}
@@ -82,7 +81,7 @@ public class GuiRecipeTree extends GuiContainer {
 	}
 
 	private void branchOut(List inputs) {
-		Branch<Leaf> selection = selected;
+		TreeNode<NodeData> selection = selected;
 		for (Object o : inputs) {
 			ItemStack stack = null;
 			if (o instanceof ItemStack)
@@ -90,16 +89,15 @@ public class GuiRecipeTree extends GuiContainer {
 			if (o instanceof List)
 				stack = (ItemStack) ((List) o).get(0);
 			if (stack != null) {
-				Branch<Leaf> branch = new Branch<Leaf>(new Leaf(stack));
-				selection.addBranch(branch);
-				selected = branch;
+				TreeNode<NodeData> treeNode = new TreeNode<NodeData>(new NodeData(stack));
+				selection.addBranch(treeNode);
+				selected = treeNode;
 				expectedOutput = stack;
 			}
 		}
 	}
 
 	private void updateTree() {
-
 		tree.printStructure();
 	}
 	private static class DummyContainer extends Container {
