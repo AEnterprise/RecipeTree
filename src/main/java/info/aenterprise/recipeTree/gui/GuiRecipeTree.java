@@ -1,11 +1,11 @@
 package info.aenterprise.recipeTree.gui;
 
 import info.aenterprise.recipeTree.tree.NodeData;
+import info.aenterprise.recipeTree.tree.NodeVisitor;
 import info.aenterprise.recipeTree.tree.TreeNode;
 import info.aenterprise.recipeTree.util.Log;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -67,7 +67,7 @@ public class GuiRecipeTree extends GuiContainer {
 				}
 				if (stack != null) {
 					TreeNode<NodeData> treeNode = new TreeNode<>(new NodeData(stack));
-					root.addBranch(treeNode);
+					root.addNode(treeNode);
 					selected = treeNode;
 					expectedOutput = stack;
 				}
@@ -98,7 +98,7 @@ public class GuiRecipeTree extends GuiContainer {
 				stack = (ItemStack) ((List) o).get(0);
 			if (stack != null) {
 				TreeNode<NodeData> treeNode = new TreeNode<>(new NodeData(stack));
-				selection.addBranch(treeNode);
+				selection.addNode(treeNode);
 				selected = treeNode;
 				expectedOutput = stack;
 			}
@@ -108,24 +108,17 @@ public class GuiRecipeTree extends GuiContainer {
 	private void updateTree() {
 		NodeData data = root.getData();
 		data.setPos(50, 50);
-		updateNodes(root.getSubNodes());
+		updateNodes(root);
 		root.printStructure();
 	}
 
-	private void updateNodes(List<TreeNode<NodeData>> list) {
-		List<TreeNode<NodeData>> next = new ArrayList<>();
-		for (TreeNode<NodeData> node : list) {
-			next.addAll(node.getSubNodes());
+	private void updateNodes(TreeNode<NodeData> root) {
+		root.invite(new NodeVisitor());
+		for (TreeNode<NodeData> node : root) {
 			NodeData data = node.getData();
 			TreeNode<NodeData> parent = node.getParent();
-			int x = parent.getData().getX() + ((parent.getSubNodes().indexOf(node) + 1) * (36 * (node.getNumBranches() + 1)));
-			x += node.getNumBranches() * 18;
-			int y = parent.getData().getY() + 36;
-			data.setPos(x, y);
-			//data.setPos((parent.getData().getX() - (parent.getSubNodes().size() * (36 * (node.getMostChilds()+1))) / 2) + ((parent.getSubNodes().indexOf(node) + 1) * (36 * (node.getNumBranches()+1))), parent.getData().getY() + 36);
+			data.setPos(parent.getData().getX() + node.getData().getWidth() / 2 - parent.getData().getWidth() / 2, parent.getData().getY() + 36);
 		}
-		if (!next.isEmpty())
-			updateNodes(next);
 	}
 
 	private static class DummyContainer extends Container {

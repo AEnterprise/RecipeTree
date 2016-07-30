@@ -1,7 +1,5 @@
 package info.aenterprise.recipeTree.tree;
 
-import info.aenterprise.recipeTree.tree.visiting.Visitable;
-import info.aenterprise.recipeTree.tree.visiting.Visitor;
 import info.aenterprise.recipeTree.util.Log;
 
 import java.util.ArrayList;
@@ -13,7 +11,7 @@ import com.google.common.collect.ImmutableList;
  * Copyright (c) 2016, AEnterprise
  * http://www.aenterprise.info/
  */
-public class TreeNode<T> implements Iterable<TreeNode<T>>, Visitable {
+public class TreeNode<T> implements Iterable<TreeNode<T>>, Host {
 	private T data;
 	private List<TreeNode<T>> subNodes;
 	private TreeNode<T> parent;
@@ -33,11 +31,11 @@ public class TreeNode<T> implements Iterable<TreeNode<T>>, Visitable {
 		return data;
 	}
 
-	public void addBranchWithLeaf(T leaf) {
-		addBranch(new TreeNode<T>(leaf));
+	public void addNode(T leaf) {
+		addNode(new TreeNode<T>(leaf));
 	}
 
-	public void addBranch(TreeNode<T> treeNode) {
+	public void addNode(TreeNode<T> treeNode) {
 		treeNode.parent = this;
 		subNodes.add(treeNode);
 	}
@@ -46,21 +44,21 @@ public class TreeNode<T> implements Iterable<TreeNode<T>>, Visitable {
 		return ImmutableList.copyOf(subNodes);
 	}
 
-	public List<TreeNode<T>> getAllBranches() {
+	public List<TreeNode<T>> getAllNodes() {
 		ArrayList<TreeNode<T>> list = new ArrayList<>();
 		for (TreeNode<T> treeNode : subNodes) {
 			list.add(treeNode);
-			list.addAll(treeNode.getAllBranches());
+			list.addAll(treeNode.getAllNodes());
 		}
 		return list;
 	}
 
-	public void removeBranch(TreeNode<T> treeNode) {
+	public void removeNode(TreeNode<T> treeNode) {
 		if (subNodes.contains(treeNode)) {
 			subNodes.remove(treeNode);
 		} else {
 			for (TreeNode<T> subTreeNode : subNodes) {
-				subTreeNode.removeBranch(treeNode);
+				subTreeNode.removeNode(treeNode);
 			}
 		}
 	}
@@ -70,7 +68,7 @@ public class TreeNode<T> implements Iterable<TreeNode<T>>, Visitable {
 	}
 
 	private void printStructure(String prefix, boolean isTail) {
-		Log.info(prefix + (parent == null ? "" : isTail ? "└── " : "├── ") + "Leaf: " + data.toString() + ", Sub-branches: " + getNumBranches() + ", layer: " + getLayer());
+		Log.info(prefix + (parent == null ? "" : isTail ? "└── " : "├── ") + "Leaf: " + data.toString() + ", Sub-branches: " + getNumNodes() + ", layer: " + getLayer());
 		for (int i = 0; i < subNodes.size() - 1; i++) {
 			subNodes.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false);
 		}
@@ -79,21 +77,12 @@ public class TreeNode<T> implements Iterable<TreeNode<T>>, Visitable {
 		}
 	}
 
-	public int getNumBranches() {
+	public int getNumNodes() {
 		int branches = subNodes.size();
 		for (TreeNode treeNode : subNodes) {
-			branches += treeNode.getNumBranches();
+			branches += treeNode.getNumNodes();
 		}
 		return branches;
-	}
-
-	public int getMostChilds() {
-		int count = subNodes.size();
-		for (TreeNode node : subNodes) {
-			if (node.getMostChilds() > count)
-				count = node.getMostChilds();
-		}
-		return count;
 	}
 
 	@Override
@@ -120,9 +109,7 @@ public class TreeNode<T> implements Iterable<TreeNode<T>>, Visitable {
 	}
 
 	@Override
-	public void accept(Visitor visitor) {
-		for (TreeNode<T> node : subNodes) {
-			node.accept(visitor);
-		}
+	public void invite(Visitor v) {
+		v.visit((TreeNode<T>) this);
 	}
 }

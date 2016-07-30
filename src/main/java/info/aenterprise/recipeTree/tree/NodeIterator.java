@@ -14,7 +14,7 @@ public class NodeIterator<T> implements Iterator<TreeNode<T>> {
 
 	public NodeIterator(TreeNode<T> topNode) {
 		this.topNode = topNode;
-		nodes = topNode.getAllBranches();
+		nodes = topNode.getAllNodes();
 	}
 
 	@Override
@@ -31,6 +31,6 @@ public class NodeIterator<T> implements Iterator<TreeNode<T>> {
 
 	@Override
 	public void remove() {
-		topNode.removeBranch(nodes.get(count - 1));
+		topNode.removeNode(nodes.get(count - 1));
 	}
 }

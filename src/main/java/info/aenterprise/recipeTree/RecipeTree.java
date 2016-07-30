@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
  * Copyright (c) 2016, AEnterprise
  * http://www.aenterprise.info/
  */
-@Mod(modid = "recipetree", version = "@MODVERSION@")
+@Mod(modid = "recipetree", version = "@MODVERSION@", clientSideOnly = true)
 public class RecipeTree {
 
 	@SidedProxy(serverSide = "info.aenterprise.recipeTree.proxy.CommonProxy", clientSide = "info.aenterprise.recipeTree.proxy.ClientProxy")

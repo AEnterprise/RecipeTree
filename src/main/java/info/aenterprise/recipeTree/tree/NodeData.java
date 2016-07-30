@@ -8,10 +8,11 @@ import net.minecraft.item.ItemStack;
  */
 public class NodeData {
 	private ItemStack stack;
-	private int x, y;
+	private int x, y, width;
 
 	public NodeData(ItemStack stack) {
 		this.stack = stack;
+		width = 40;
 	}
 
 	public int getX() {
@@ -25,6 +26,14 @@ public class NodeData {
 	public void setPos(int x, int y) {
 		this.x = x;
 		this.y = y;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
 	}
 
 	@Override
