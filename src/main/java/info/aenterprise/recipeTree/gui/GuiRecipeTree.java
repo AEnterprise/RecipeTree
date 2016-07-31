@@ -1,8 +1,9 @@
 package info.aenterprise.recipeTree.gui;
 
-import info.aenterprise.recipeTree.tree.NodeData;
-import info.aenterprise.recipeTree.tree.NodeVisitor;
-import info.aenterprise.recipeTree.tree.TreeNode;
+import info.aenterprise.recipeTree.tree.*;
+import info.aenterprise.recipeTree.tree.generic.NodeData;
+import info.aenterprise.recipeTree.tree.generic.TreeNode;
+import info.aenterprise.recipeTree.tree.visit.WidthVisitor;
 import info.aenterprise.recipeTree.util.Log;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
@@ -26,8 +27,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GuiRecipeTree extends GuiContainer {
 	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/gui.png");
 
-	private TreeNode<NodeData> root;
-	private TreeNode<NodeData> selected = null;
+	private TreeNode<?> root;
+	private TreeNode<?> selected = null;
 	private ItemStack expectedOutput = null;
 
 	public GuiRecipeTree() {
@@ -45,19 +46,19 @@ public class GuiRecipeTree extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
-		drawTexturedModalRect((this.width - this.xSize) / 2, (this.height - this.ySize) / 2, 0, 0, 256, 256);
+		int left = (this.width - this.xSize) / 2;
+		int top = (this.height - this.ySize) / 2;
+		drawTexturedModalRect(left, top, 0, 0, 256, 256);
 
 		if (root != null) {
-			drawTexturedModalRect(root.getData().getX(), root.getData().getY(), 74, 230, 20, 20);
-			for (TreeNode<NodeData> node : root) {
-				drawTexturedModalRect(node.getData().getX(), node.getData().getY(), 74, 230, 20, 20);
-			}
+			root.drawBackGround(this, left, top);
+			root.forEach(node -> node.drawBackGround(this, left, top));
 		}
 	}
 
 	public void recieveRecipe(IRecipeWrapper recipe) {
 		if (root == null) {
-			root = new TreeNode<>(new NodeData((ItemStack) recipe.getOutputs().get(0)));
+			root = new ItemStackTreeNode((ItemStack) recipe.getOutputs().get(0));
 			for (Object o : recipe.getInputs()) {
 				ItemStack stack = null;
 				if (o instanceof ItemStack) {
@@ -66,7 +67,7 @@ public class GuiRecipeTree extends GuiContainer {
 					stack = (ItemStack) ((List) o).get(0);
 				}
 				if (stack != null) {
-					TreeNode<NodeData> treeNode = new TreeNode<>(new NodeData(stack));
+					ItemStackTreeNode treeNode = new ItemStackTreeNode(stack);
 					root.addNode(treeNode);
 					selected = treeNode;
 					expectedOutput = stack;
@@ -89,7 +90,7 @@ public class GuiRecipeTree extends GuiContainer {
 	}
 
 	private void branchOut(List inputs) {
-		TreeNode<NodeData> selection = selected;
+		TreeNode selection = selected;
 		for (Object o : inputs) {
 			ItemStack stack = null;
 			if (o instanceof ItemStack)
@@ -97,7 +98,7 @@ public class GuiRecipeTree extends GuiContainer {
 			if (o instanceof List)
 				stack = (ItemStack) ((List) o).get(0);
 			if (stack != null) {
-				TreeNode<NodeData> treeNode = new TreeNode<>(new NodeData(stack));
+				TreeNode treeNode = new ItemStackTreeNode(stack);
 				selection.addNode(treeNode);
 				selected = treeNode;
 				expectedOutput = stack;
@@ -107,18 +108,14 @@ public class GuiRecipeTree extends GuiContainer {
 
 	private void updateTree() {
 		NodeData data = root.getData();
-		data.setPos(50, 50);
+		data.setPos(100, 20);
 		updateNodes(root);
 		root.printStructure();
 	}
 
-	private void updateNodes(TreeNode<NodeData> root) {
-		root.invite(new NodeVisitor());
-		for (TreeNode<NodeData> node : root) {
-			NodeData data = node.getData();
-			TreeNode<NodeData> parent = node.getParent();
-			data.setPos(parent.getData().getX() + node.getData().getWidth() / 2 - parent.getData().getWidth() / 2, parent.getData().getY() + 36);
-		}
+	private void updateNodes(TreeNode<?> root) {
+		root.postOrder(new WidthVisitor());
+		root.updatePositions();
 	}
 
 	private static class DummyContainer extends Container {
