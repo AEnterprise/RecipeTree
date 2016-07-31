@@ -1,4 +1,4 @@
-package info.aenterprise.recipeTree.tree;
+package info.aenterprise.recipeTree.tree.generic;
 
 import java.util.Iterator;
 import java.util.List;
@@ -7,12 +7,12 @@ import java.util.List;
  * Copyright (c) 2016, AEnterprise
  * http://www.aenterprise.info/
  */
-public class NodeIterator<T> implements Iterator<TreeNode<T>> {
-	private final TreeNode<T> topNode;
-	private final List<TreeNode<T>> nodes;
+public class NodeIterator implements Iterator<TreeNode> {
+	private final TreeNode topNode;
+	private final List<TreeNode> nodes;
 	private int count = 0;
 
-	public NodeIterator(TreeNode<T> topNode) {
+	public NodeIterator(TreeNode<?> topNode) {
 		this.topNode = topNode;
 		nodes = topNode.getAllNodes();
 	}
@@ -23,8 +23,8 @@ public class NodeIterator<T> implements Iterator<TreeNode<T>> {
 	}
 
 	@Override
-	public TreeNode<T> next() {
-		TreeNode<T> treeNode = nodes.get(count);
+	public TreeNode next() {
+		TreeNode treeNode = nodes.get(count);
 		count++;
 		return treeNode;
 	}

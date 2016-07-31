@@ -55,8 +55,7 @@ repositories {
 }
 
 dependencies {
- deobfCompile "mezz.jei:jei_${config.version.mc}:${config.version.jei}"
-  runtime "mezz.jei:jei_${config.version.mc}:${config.version.jei}"
+	deobfCompile "mezz.jei:jei_${config.version.mc}:${config.version.jei}"
 }
 
 processResources
