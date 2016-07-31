@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public class SelectButton {
 	@SideOnly(Side.CLIENT)
-	private static final ResourceLocation gui = new ResourceLocation("recipetree", "textures/gui/gui.png");
+	private static final ResourceLocation gui = new ResourceLocation("recipetree", "textures/gui/overlay.png");
 
 	private int x, y;
 	private IRecipeWrapper recipe;
@@ -36,7 +36,7 @@ public class SelectButton {
 		RenderHelper.enableGUIStandardItemLighting();
 		mc.getTextureManager().bindTexture(gui);
 
-		GuiUtils.drawTexturedModalRect(x, y, 20, 230, 16, 16, 1);
+		GuiUtils.drawTexturedModalRect(x, y, 20, 230, 8, 8, 1);
 
 		GlStateManager.disableAlpha();
 		GlStateManager.enableBlend();

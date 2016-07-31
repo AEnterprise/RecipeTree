@@ -7,8 +7,12 @@ import info.aenterprise.recipeTree.tree.visit.WidthVisitor;
 import info.aenterprise.recipeTree.util.Log;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
+import java.io.IOException;
 import java.util.List;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -25,16 +29,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 @SideOnly(Side.CLIENT)
 public class GuiRecipeTree extends GuiContainer {
-	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/gui.png");
+	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/overlay.png");
 
-	private TreeNode<?> root;
+	private TreeNode<ItemStack> root;
 	private TreeNode<?> selected = null;
-	private ItemStack expectedOutput = null;
+	private int prevMouseX, prevMouseY, xOffset, yOffset;
 
 	public GuiRecipeTree() {
 		super(new DummyContainer());
 		this.xSize = 256;
 		this.ySize = 222;
+		xOffset = 0;
+		yOffset = 0;
 	}
 
 	public void open() {
@@ -45,23 +51,79 @@ public class GuiRecipeTree extends GuiContainer {
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
 		int left = (this.width - this.xSize) / 2;
 		int top = (this.height - this.ySize) / 2;
-		drawTexturedModalRect(left, top, 0, 0, 256, 256);
+		if (Mouse.isButtonDown(0) && root != null && mouseX > left && mouseX < left + xSize && mouseY > top && mouseY < top + ySize) {
+			xOffset += mouseX - prevMouseX;
+			yOffset += mouseY - prevMouseY;
+			updateTree();
+		}
+		prevMouseX = mouseX;
+		prevMouseY = mouseY;
+		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
 
+		drawTexturedModalRect(left, top, 0, 0, xSize, ySize);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
+		startScissor();
 		if (root != null) {
 			root.drawBackGround(this, left, top);
 			root.forEach(node -> node.drawBackGround(this, left, top));
 		}
+		cut();
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+		startScissor();
 		if (root != null) {
 			root.drawData(this);
 			root.forEach(node -> node.drawData(this));
 		}
+		cut();
+		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
+
+	}
+
+	private void startScissor() {
+		int scale = new ScaledResolution(mc).getScaleFactor();
+		long guiLeft = Math.round((mc.displayWidth - (xSize * scale)) / 2.0F);
+		long guiTop = Math.round((mc.displayHeight + (ySize * scale)) / 2.0F);
+		int scissorX = Math.round(guiLeft + 9 * scale - scale);
+		int scissorY = Math.round(guiTop - 182 * scale - 9 * scale);
+		GL11.glScissor(scissorX, scissorY, 237 * scale, 182 * scale);
+		GL11.glEnable(GL11.GL_SCISSOR_TEST);
+	}
+
+	private void cut() {
+		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+	}
+
+	@Override
+	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+	}
+
+	@Override
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+		if (!isClickOnNode(root, mouseX, mouseY)) {
+			for (TreeNode<?> node : root) {
+				if (isClickOnNode(node, mouseX, mouseY))
+					break;
+			}
+		}
+	}
+
+	private boolean isClickOnNode(TreeNode<?> node, int x, int y) {
+		int nodeX = node.getData().getX();
+		int nodeY = node.getData().getY();
+		if (x > nodeX && x < nodeX + 20 && y > nodeY && y < nodeY + 20) {
+			selected = node;
+		}
+		return false;
+	}
+
+	@Override
+	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		super.mouseReleased(mouseX, mouseY, state);
 	}
 
 	public void recieveRecipe(IRecipeWrapper recipe) {
@@ -79,20 +141,19 @@ public class GuiRecipeTree extends GuiContainer {
 					ItemStackTreeNode treeNode = new ItemStackTreeNode(stack);
 					root.addNode(treeNode);
 					selected = treeNode;
-					expectedOutput = stack;
 				}
 			}
 		} else {
 			boolean found = false;
 			for (Object o : recipe.getOutputs()) {
-				if (o instanceof ItemStack && ((ItemStack) o).isItemEqual(expectedOutput)) {
+				if (o instanceof ItemStack && ((ItemStack) o).isItemEqual(getExpectedOutput())) {
 					branchOut(recipe.getInputs());
 					found = true;
 					break;
 				}
 			}
 			if (!found) {
-				Log.info("Got a recipe for " + recipe.getOutputs().get(0) + "but expected a recipe for " + expectedOutput);
+				Log.info("Got a recipe for " + recipe.getOutputs().get(0) + "but expected a recipe for " + getExpectedOutput());
 			}
 		}
 		updateTree();
@@ -110,16 +171,19 @@ public class GuiRecipeTree extends GuiContainer {
 				TreeNode treeNode = new ItemStackTreeNode(stack);
 				selection.addNode(treeNode);
 				selected = treeNode;
-				expectedOutput = stack;
 			}
 		}
 	}
 
+	private ItemStack getExpectedOutput() {
+		return root.getData().getData();
+	}
+
 	private void updateTree() {
 		NodeData data = root.getData();
-		data.setPos(this.width / 4, 30);
+		data.setPos(this.width / 4 + xOffset, 30 + yOffset);
 		updateNodes(root);
-		root.printStructure();
+		//root.printStructure();
 	}
 
 	private void updateNodes(TreeNode<?> root) {

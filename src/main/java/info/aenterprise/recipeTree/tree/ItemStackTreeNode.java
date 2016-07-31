@@ -39,16 +39,12 @@ public class ItemStackTreeNode extends TreeNode<ItemStack>
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void drawBackGround(GuiScreen gui, int left, int top) {
-		if (!shouldDraw(gui))
-			return;
 		gui.drawTexturedModalRect(left + data.getX(), top + data.getY(), 74, 230, 20, 20);
     }
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void drawData(GuiScreen gui) {
-		if (!shouldDraw(gui))
-			return;
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
@@ -57,9 +53,5 @@ public class ItemStackTreeNode extends TreeNode<ItemStack>
 		gui.mc.getRenderItem().renderItemAndEffectIntoGUI(null, data.getData(), data.getX() + 2, data.getY() + 2);
 		gui.mc.getRenderItem().renderItemOverlayIntoGUI(fontRenderer, data.getData(), data.getX() + 2, data.getY() + 2, null);
 		GlStateManager.popMatrix();
-	}
-
-	private boolean shouldDraw(GuiScreen gui) {
-		return data.getX() > 0 && data.getX() < gui.width && data.getY() > 0 && data.getY() < gui.height;
 	}
 }
