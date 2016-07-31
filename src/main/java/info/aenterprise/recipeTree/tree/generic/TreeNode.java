@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 
 /**
  * Copyright (c) 2016, AEnterprise
@@ -37,9 +37,9 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	public abstract void addLeaf(T data);
 
-	public abstract void drawBackGround(Gui gui, int left, int top);
+	public abstract void drawBackGround(GuiScreen gui, int left, int top);
 
-	public abstract void drawData(Gui gui, int left, int top);
+	public abstract void drawData(GuiScreen gui);
 
 	public void addNode(TreeNode treeNode) {
 		treeNode.parent = this;

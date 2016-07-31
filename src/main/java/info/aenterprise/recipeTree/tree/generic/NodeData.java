@@ -30,4 +30,8 @@ public abstract class NodeData<T>
     public void setWidth(int width) {
         this.width = width;
     }
+
+	public T getData() {
+		return data;
+	}
 }

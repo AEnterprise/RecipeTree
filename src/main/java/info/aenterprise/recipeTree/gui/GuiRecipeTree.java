@@ -1,6 +1,6 @@
 package info.aenterprise.recipeTree.gui;
 
-import info.aenterprise.recipeTree.tree.*;
+import info.aenterprise.recipeTree.tree.ItemStackTreeNode;
 import info.aenterprise.recipeTree.tree.generic.NodeData;
 import info.aenterprise.recipeTree.tree.generic.TreeNode;
 import info.aenterprise.recipeTree.tree.visit.WidthVisitor;
@@ -56,6 +56,14 @@ public class GuiRecipeTree extends GuiContainer {
 		}
 	}
 
+	@Override
+	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+		if (root != null) {
+			root.drawData(this);
+			root.forEach(node -> node.drawData(this));
+		}
+	}
+
 	public void recieveRecipe(IRecipeWrapper recipe) {
 		if (root == null) {
 			root = new ItemStackTreeNode((ItemStack) recipe.getOutputs().get(0));
@@ -67,6 +75,7 @@ public class GuiRecipeTree extends GuiContainer {
 					stack = (ItemStack) ((List) o).get(0);
 				}
 				if (stack != null) {
+
 					ItemStackTreeNode treeNode = new ItemStackTreeNode(stack);
 					root.addNode(treeNode);
 					selected = treeNode;
@@ -108,7 +117,7 @@ public class GuiRecipeTree extends GuiContainer {
 
 	private void updateTree() {
 		NodeData data = root.getData();
-		data.setPos(100, 20);
+		data.setPos(this.width / 4, 30);
 		updateNodes(root);
 		root.printStructure();
 	}
