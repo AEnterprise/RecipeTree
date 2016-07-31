@@ -6,10 +6,8 @@ import java.awt.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -19,8 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public class SelectButton {
 	@SideOnly(Side.CLIENT)
-	private static final ResourceLocation checkmark = new ResourceLocation("recipetree", "textures/gui/greencheck.png");
-	private static final int size = 8;
+	private static final ResourceLocation gui = new ResourceLocation("recipetree", "textures/gui/gui.png");
 
 	private int x, y;
 	private IRecipeWrapper recipe;
@@ -37,18 +34,9 @@ public class SelectButton {
 		GlStateManager.enableAlpha();
 		GlStateManager.disableBlend();
 		RenderHelper.enableGUIStandardItemLighting();
-		mc.getTextureManager().bindTexture(checkmark);
+		mc.getTextureManager().bindTexture(gui);
 
-		Tessellator tessellator = Tessellator.getInstance();
-		VertexBuffer wr = tessellator.getBuffer();
-		wr.begin(7, DefaultVertexFormats.POSITION_TEX);
-		float  uScale = 1f / 0x8;
-		float  vScale = 1f / 0x8;
-		wr.pos(x    , y + 8, 1).tex(0 * uScale, (8 * vScale)).endVertex();
-		wr.pos(x + 8, y + 8, 1).tex(8 * uScale, (8 * vScale)).endVertex();
-		wr.pos(x + 8, y    , 1).tex(8 * uScale, (0 * vScale)).endVertex();
-		wr.pos(x    , y    , 1).tex(0 * uScale, (0 * vScale)).endVertex();
-		tessellator.draw();
+		GuiUtils.drawTexturedModalRect(x, y, 20, 230, 16, 16, 1);
 
 		GlStateManager.disableAlpha();
 		GlStateManager.enableBlend();
@@ -56,7 +44,7 @@ public class SelectButton {
 	}
 
 	public Rectangle getBounds() {
-		return new Rectangle(x, y, 8, 8);
+		return new Rectangle(x, y, 16, 16);
 	}
 
 	public IRecipeWrapper getRecipe() {

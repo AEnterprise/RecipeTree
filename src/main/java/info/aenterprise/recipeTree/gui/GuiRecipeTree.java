@@ -32,8 +32,8 @@ public class GuiRecipeTree extends GuiContainer {
 
 	public GuiRecipeTree() {
 		super(new DummyContainer());
-		this.xSize = 200;
-		this.ySize = 200;
+		this.xSize = 256;
+		this.ySize = 222;
 	}
 
 	public void open() {
@@ -45,12 +45,12 @@ public class GuiRecipeTree extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
-		drawTexturedModalRect((this.width - this.xSize) / 2, (this.height - this.ySize) / 2, 0, 0, 200, 200);
+		drawTexturedModalRect((this.width - this.xSize) / 2, (this.height - this.ySize) / 2, 0, 0, 256, 256);
 
 		if (root != null) {
-			drawTexturedModalRect(root.getData().getX(), root.getData().getY(), 26, 201, 20, 20);
+			drawTexturedModalRect(root.getData().getX(), root.getData().getY(), 74, 230, 20, 20);
 			for (TreeNode<NodeData> node : root) {
-				drawTexturedModalRect(node.getData().getX(), node.getData().getY(), 26, 201, 20, 20);
+				drawTexturedModalRect(node.getData().getX(), node.getData().getY(), 74, 230, 20, 20);
 			}
 		}
 	}
