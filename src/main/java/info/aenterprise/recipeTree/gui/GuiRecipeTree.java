@@ -7,10 +7,8 @@ import info.aenterprise.recipeTree.tree.visit.WidthVisitor;
 import info.aenterprise.recipeTree.util.Log;
 import mezz.jei.api.recipe.IRecipeWrapper;
 
-import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
-
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
@@ -39,6 +37,8 @@ public class GuiRecipeTree extends GuiContainer {
 	private TreeNode<ItemStack> selected;
 	private int prevMouseX, prevMouseY, xOffset, yOffset;
 
+	private Zoom zoom = Zoom.NORMAL;
+
 	public GuiRecipeTree() {
 		super(new DummyContainer());
 		this.xSize = 256;
@@ -64,28 +64,25 @@ public class GuiRecipeTree extends GuiContainer {
 		}
 		prevMouseX = mouseX;
 		prevMouseY = mouseY;
-		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
 
-		drawTexturedModalRect(left, top, 0, 0, xSize, ySize);
+		int wheel = Mouse.getDWheel();
+		if (wheel < 0)
+			zoom = zoom.zoomIn();
+		if (wheel > 0)
+			zoom = zoom.zoomOut();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
+		drawTexturedModalRect(left, top, 0, 0, xSize, ySize);
 		startScissor();
+		GL11.glPushMatrix();
+		GL11.glScaled(zoom.factor, zoom.factor, 1);
 		if (root != null) {
 			root.drawBackGround(this, left, top, root == selected);
 			root.forEach(node -> node.drawBackGround(this, left, top, node == selected));
+			root.drawData(this, left, top);
+			root.forEach(node -> node.drawData(this, left, top));
 		}
+		GL11.glPopMatrix();
 		cut();
-	}
-
-	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		startScissor();
-		if (root != null) {
-			root.drawData(this);
-			root.forEach(node -> node.drawData(this));
-		}
-		cut();
-		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
-
 	}
 
 	private void startScissor() {
@@ -102,29 +99,17 @@ public class GuiRecipeTree extends GuiContainer {
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 	}
 
-	@Override
-	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		if (root != null && !isClickOnNode(root, mouseX, mouseY)) {
-			for (TreeNode<ItemStack> node : root) {
-				if (isClickOnNode(node, mouseX, mouseY))
-					break;
-			}
-		}
-	}
-
 	private boolean isClickOnNode(TreeNode<ItemStack> node, int x, int y) {
 		int left = (this.width - this.xSize) / 2;
 		int top = (this.height - this.ySize) / 2;
+
+		x *= 1 / zoom.factor;
 		x -= left;
+		y *= 1 / zoom.factor;
 		y -= top;
 		int nodeX = node.getData().getX();
 		int nodeY = node.getData().getY();
-		if (x > nodeX && x < nodeX + 20 && y > nodeY && y < nodeY + 20) {
+		if (x > nodeX && x < nodeX + 20 * (1 / zoom.factor) && y > nodeY && y < nodeY + 20 * (1 / zoom.factor)) {
 			selected = node;
 			return true;
 		}
@@ -133,8 +118,14 @@ public class GuiRecipeTree extends GuiContainer {
 
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int state) {
-		super.mouseReleased(mouseX, mouseY, state);
+		if (root != null && !isClickOnNode(root, mouseX, mouseY)) {
+			for (TreeNode<ItemStack> node : root) {
+				if (isClickOnNode(node, mouseX, mouseY))
+					break;
+			}
+		}
 	}
+
 
 	public void recieveRecipe(IRecipeWrapper recipe) {
 		if (root == null) {
@@ -185,7 +176,7 @@ public class GuiRecipeTree extends GuiContainer {
 
 	private void updateTree() {
 		NodeData data = root.getData();
-		data.setPos(this.width / 4 + xOffset, 30 + yOffset);
+		data.setPos((int) ((this.width / (2 * zoom.factor) + xOffset)), (int) (30 + yOffset / zoom.factor));
 		updateNodes(root);
 		//root.printStructure();
 	}
@@ -193,6 +184,35 @@ public class GuiRecipeTree extends GuiContainer {
 	private void updateNodes(TreeNode<?> root) {
 		root.postOrder(new WidthVisitor());
 		root.updatePositions();
+	}
+
+	private enum Zoom {
+		MINI(0.5),
+		SMALL(0.75),
+		NORMAL(1),
+		LARGE(2);
+
+		private double factor;
+
+		Zoom(double factor) {
+			this.factor = factor;
+		}
+
+		public Zoom zoomIn() {
+			int lvl = ordinal() - 1;
+			if (lvl < 0) {
+				return this;
+			}
+			return values()[lvl];
+		}
+
+		public Zoom zoomOut() {
+			int lvl = ordinal() + 1;
+			if (lvl >= values().length) {
+				return this;
+			}
+			return values()[lvl];
+		}
 	}
 
 	private static class DummyContainer extends Container {

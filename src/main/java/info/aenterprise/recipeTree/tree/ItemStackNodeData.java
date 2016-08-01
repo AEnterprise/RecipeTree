@@ -1,16 +1,19 @@
 package info.aenterprise.recipeTree.tree;
 
 import info.aenterprise.recipeTree.tree.generic.NodeData;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.LinkedList;
 import java.util.List;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
 
 /**
  * Copyright (c) 2016, AEnterprise
  * http://www.aenterprise.info/
  */
+@SideOnly(Side.CLIENT)
 public class ItemStackNodeData extends NodeData<ItemStack>
 {
 	private List<ItemStack> permutations;
@@ -18,10 +21,13 @@ public class ItemStackNodeData extends NodeData<ItemStack>
 	public ItemStackNodeData(ItemStack stack)
 	{
 		super(stack);
-		if (stack.getMetadata() == OreDictionary.WILDCARD_VALUE && stack.getItem().getHasSubtypes())
-		{
-			permutations = new LinkedList<>();
-			stack.getItem().getSubItems(stack.getItem(), null, permutations);
+		if (stack.getMetadata() == OreDictionary.WILDCARD_VALUE) {
+			if (stack.getHasSubtypes()) {
+				permutations = new LinkedList<>();
+				stack.getItem().getSubItems(stack.getItem(), null, permutations);
+			} else {
+				stack.setItemDamage(0);
+			}
 		}
 	}
 

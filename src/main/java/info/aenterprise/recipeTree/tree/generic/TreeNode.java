@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Copyright (c) 2016, AEnterprise
@@ -43,7 +43,7 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	public abstract void drawBackGround(GuiScreen gui, int left, int top, boolean selected);
 
-	public abstract void drawData(GuiScreen gui);
+	public abstract void drawData(GuiScreen gui, int left, int top);
 
 	public void addNode(TreeNode treeNode) {
 		treeNode.parent = this;
