@@ -38,4 +38,6 @@ public abstract class NodeData<T>
 	public T getData() {
 		return data;
 	}
+
+	public abstract boolean isMatch(T stack);
 }

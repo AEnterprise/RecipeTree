@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Copyright (c) 2016, AEnterprise
@@ -17,7 +21,7 @@ import net.minecraft.client.gui.GuiScreen;
 public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 {
 	protected NodeData<T> data;
-	private List<TreeNode> subNodes;
+	protected List<TreeNode> subNodes;
 	private TreeNode parent;
 
 
@@ -106,9 +110,8 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 	public void updatePositions()
 	{
 		int x = getData().getX() - getData().getWidth() / 2;
-		for (int i = 0; i < subNodes.size(); i++)
+		for (TreeNode subNode : subNodes)
 		{
-			TreeNode<?> subNode = subNodes.get(i);
 			x += subNode.getData().getWidth() / 2;
 			subNode.getData().setPos(x, getData().getY() + 36);
 			x += subNode.getData().getWidth() / 2;
@@ -134,5 +137,17 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	public TreeNode getParent() {
 		return parent;
+	}
+
+	protected void drawLine(double xBegin, double yBegin, double xEnd, double yEnd, float[] rgb)
+	{
+		GlStateManager.pushMatrix();
+		GlStateManager.color(rgb[0], rgb[1], rgb[2]);
+		GL11.glLineWidth(new ScaledResolution(Minecraft.getMinecraft()).getScaleFactor() * 1.3F);
+		GL11.glBegin(GL11.GL_LINES);
+		GL11.glVertex2d(xBegin, yBegin);
+		GL11.glVertex2d(xEnd, yEnd);
+		GL11.glEnd();
+		GlStateManager.popMatrix();
 	}
 }

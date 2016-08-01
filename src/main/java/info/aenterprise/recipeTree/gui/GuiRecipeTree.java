@@ -10,6 +10,7 @@ import mezz.jei.api.recipe.IRecipeWrapper;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
+
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
@@ -151,17 +152,17 @@ public class GuiRecipeTree extends GuiContainer {
 					root.addNode(treeNode);
 				}
 			}
-		} else {
+		} else if (selected != null) {
 			boolean found = false;
 			for (Object o : recipe.getOutputs()) {
-				if (o instanceof ItemStack && ((ItemStack) o).isItemEqual(getExpectedOutput())) {
+				if (o instanceof ItemStack && selected.getData().isMatch((ItemStack)o)) {
 					branchOut(recipe.getInputs());
 					found = true;
 					break;
 				}
 			}
 			if (!found) {
-				Log.info("Got a recipe for " + recipe.getOutputs().get(0) + "but expected a recipe for " + getExpectedOutput());
+				Log.info("Got a recipe for " + recipe.getOutputs().get(0) + "but expected a recipe for " + selected.getData().getData());
 			}
 		}
 		updateTree();
@@ -180,10 +181,6 @@ public class GuiRecipeTree extends GuiContainer {
 				selection.addNode(treeNode);
 			}
 		}
-	}
-
-	private ItemStack getExpectedOutput() {
-		return selected != null ? selected.getData().getData() : null;
 	}
 
 	private void updateTree() {
