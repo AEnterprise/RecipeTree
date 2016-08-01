@@ -1,6 +1,7 @@
 package info.aenterprise.recipeTree.tree;
 
 import info.aenterprise.recipeTree.tree.generic.NodeData;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -19,4 +20,19 @@ public class ItemStackNodeData extends NodeData<ItemStack>
 		return "Stack: " + data.toString() + ", X: " + getX() + ", Y: " + getY();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ItemStackNodeData){
+			ItemStackNodeData other = (ItemStackNodeData) obj;
+			Item otherStack = other.getData().getItem();
+			Item thisStack = this.getData().getItem();
+			return otherStack == thisStack;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return getData().getItem().hashCode();
+	}
 }

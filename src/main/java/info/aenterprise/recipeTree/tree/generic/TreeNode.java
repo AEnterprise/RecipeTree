@@ -1,14 +1,12 @@
 package info.aenterprise.recipeTree.tree.generic;
 
+import com.google.common.collect.ImmutableList;
 import info.aenterprise.recipeTree.tree.visit.IHost;
 import info.aenterprise.recipeTree.tree.visit.IVisitor;
 import info.aenterprise.recipeTree.util.Log;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.gui.GuiScreen;
+
+import java.util.*;
 
 /**
  * Copyright (c) 2016, AEnterprise
@@ -17,7 +15,7 @@ import net.minecraft.client.gui.GuiScreen;
 public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 {
 	protected NodeData<T> data;
-	private List<TreeNode> subNodes;
+	private Map<TreeNode,Integer> subNodes;
 	private TreeNode parent;
 
 
@@ -27,7 +25,7 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	public TreeNode(NodeData<T> data, TreeNode parent) {
 		this.data = data;
-		subNodes = new ArrayList<>();
+		subNodes = new HashMap<>();
 		this.parent = parent;
 	}
 
@@ -43,16 +41,21 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	public void addNode(TreeNode treeNode) {
 		treeNode.parent = this;
-		subNodes.add(treeNode);
+		if (subNodes.containsKey(treeNode)){
+			int amount = subNodes.get(treeNode) + 1;
+			subNodes.put(treeNode, amount);
+		} else {
+			subNodes.put(treeNode, 1);
+		}
 	}
 
 	public List<TreeNode> getSubNodes() {
-		return ImmutableList.copyOf(subNodes);
+		return ImmutableList.copyOf(subNodes.keySet());
 	}
 
 	public List<TreeNode> getAllNodes() {
 		List<TreeNode> list = new ArrayList<>();
-		for (TreeNode<?> treeNode : subNodes) {
+		for (TreeNode<?> treeNode : subNodes.keySet()) {
 			list.add(treeNode);
 			list.addAll(treeNode.getAllNodes());
 		}
@@ -60,10 +63,10 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 	}
 
 	public void removeNode(TreeNode treeNode) {
-		if (subNodes.contains(treeNode)) {
+		if (subNodes.keySet().contains(treeNode)) {
 			subNodes.remove(treeNode);
 		} else {
-			for (TreeNode subTreeNode : subNodes) {
+			for (TreeNode subTreeNode : subNodes.keySet()) {
 				subTreeNode.removeNode(treeNode);
 			}
 		}
@@ -75,17 +78,18 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	private void printStructure(String prefix, boolean isTail) {
 		Log.info(prefix + (parent == null ? "" : isTail ? "└── " : "├── ") + "Leaf: " + data.toString() + ", Sub-branches: " + getNumNodes() + ", layer: " + getLayer() + ", width: " + data.getWidth());
+		List<TreeNode> nodes = new ArrayList<>(subNodes.keySet());
 		for (int i = 0; i < subNodes.size() - 1; i++) {
-			subNodes.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false);
+			nodes.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false);
 		}
 		if (subNodes.size() > 0) {
-			subNodes.get(subNodes.size() - 1).printStructure(prefix + (isTail ? "    " : "│   "), true);
+			nodes.get(subNodes.size() - 1).printStructure(prefix + (isTail ? "    " : "│   "), true);
 		}
 	}
 
 	public int getNumNodes() {
 		int branches = subNodes.size();
-		for (TreeNode treeNode : subNodes) {
+		for (TreeNode treeNode : subNodes.keySet()) {
 			branches += treeNode.getNumNodes();
 		}
 		return branches;
@@ -106,9 +110,10 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 	public void updatePositions()
 	{
 		int x = getData().getX() - getData().getWidth() / 2;
-		for (int i = 0; i < subNodes.size(); i++)
+		List<TreeNode> nodes = new ArrayList<>(subNodes.keySet());
+		for (int i = 0; i < nodes.size(); i++)
 		{
-			TreeNode<?> subNode = subNodes.get(i);
+			TreeNode<?> subNode = nodes.get(i);
 			x += subNode.getData().getWidth() / 2;
 			subNode.getData().setPos(x, getData().getY() + 36);
 			x += subNode.getData().getWidth() / 2;

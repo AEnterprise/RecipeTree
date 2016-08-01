@@ -54,4 +54,18 @@ public class ItemStackTreeNode extends TreeNode<ItemStack>
 		gui.mc.getRenderItem().renderItemOverlayIntoGUI(fontRenderer, data.getData(), data.getX() + 2, data.getY() + 2, null);
 		GlStateManager.popMatrix();
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ItemStackTreeNode){
+			ItemStackTreeNode other = (ItemStackTreeNode) obj;
+			return other.data.equals(this.data);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.data.hashCode();
+	}
 }
