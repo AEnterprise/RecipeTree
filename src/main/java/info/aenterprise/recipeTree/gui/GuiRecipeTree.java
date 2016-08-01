@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
 
-import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;

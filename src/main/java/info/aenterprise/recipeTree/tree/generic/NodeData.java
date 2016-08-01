@@ -1,7 +1,6 @@
 package info.aenterprise.recipeTree.tree.generic;
 
 import info.aenterprise.recipeTree.util.Log;
-import net.minecraft.item.ItemStack;
 
 public abstract class NodeData<T>
 {
