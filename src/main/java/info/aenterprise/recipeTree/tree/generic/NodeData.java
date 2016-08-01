@@ -1,6 +1,7 @@
 package info.aenterprise.recipeTree.tree.generic;
 
 import info.aenterprise.recipeTree.util.Log;
+import net.minecraft.item.ItemStack;
 
 public abstract class NodeData<T>
 {
@@ -38,4 +39,6 @@ public abstract class NodeData<T>
 	public T getData() {
 		return data;
 	}
+
+	public abstract boolean isMatch(T stack);
 }

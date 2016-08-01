@@ -11,15 +11,16 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 
+import java.util.List;
+
 public class ItemStackTreeNode extends TreeNode<ItemStack>
 {
+	private static final float[] colour = new float[] { 0.545F, 0.545F, 0.545F };
+
     public ItemStackTreeNode(ItemStack data)
     {
         super(new ItemStackNodeData(data));
-		if (data.getMetadata() == OreDictionary.WILDCARD_VALUE && !data.getHasSubtypes())
-			data.setItemDamage(0);
 	}
-
 
     public ItemStackTreeNode(ItemStackNodeData data)
     {
@@ -39,7 +40,20 @@ public class ItemStackTreeNode extends TreeNode<ItemStack>
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void drawBackGround(GuiScreen gui, int left, int top, boolean selected) {
-		gui.drawTexturedModalRect(left + data.getX(), top + data.getY(), selected ? 96 : 74, 230, 20, 20);
+		int x = left + data.getX();
+		int y = top + data.getY();
+		gui.drawTexturedModalRect(x, y, selected ? 96 : 74, 230, 20, 20);
+		if (!subNodes.isEmpty())
+		{
+			drawLine(x + 10, y + 20, x + 10, y + 30, colour);
+			for (TreeNode subNode : subNodes)
+			{
+				int subNodeX = left + subNode.getData().getX();
+				int subNodeY = top + subNode.getData().getY();
+				drawLine(subNodeX + 10, subNodeY, subNodeX + 10, subNodeY - 6, colour);
+				drawLine(subNodeX + 10, subNodeY - 6, x + 10, y + 30, colour);
+			}
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
