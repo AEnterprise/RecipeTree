@@ -1,5 +1,7 @@
 package info.aenterprise.recipeTree.tree.generic;
 
+import info.aenterprise.recipeTree.util.Log;
+
 public abstract class NodeData<T>
 {
     protected T data;
@@ -28,7 +30,9 @@ public abstract class NodeData<T>
     }
 
     public void setWidth(int width) {
-        this.width = width;
+		if (width != this.width)
+			Log.info("Changing node with from " + this.width + " to " + width);
+		this.width = width;
     }
 
 	public T getData() {

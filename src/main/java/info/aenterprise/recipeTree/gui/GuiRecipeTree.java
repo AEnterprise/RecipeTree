@@ -9,6 +9,7 @@ import mezz.jei.api.recipe.IRecipeWrapper;
 
 import java.io.IOException;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
@@ -31,8 +32,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GuiRecipeTree extends GuiContainer {
 	private static final ResourceLocation OVERLAY = new ResourceLocation("recipetree", "textures/gui/overlay.png");
 
+	@Nullable
 	private TreeNode<ItemStack> root;
-	private TreeNode<?> selected = null;
+	@Nullable
+	private TreeNode<ItemStack> selected;
 	private int prevMouseX, prevMouseY, xOffset, yOffset;
 
 	public GuiRecipeTree() {
@@ -66,8 +69,8 @@ public class GuiRecipeTree extends GuiContainer {
 		Minecraft.getMinecraft().getTextureManager().bindTexture(OVERLAY);
 		startScissor();
 		if (root != null) {
-			root.drawBackGround(this, left, top);
-			root.forEach(node -> node.drawBackGround(this, left, top));
+			root.drawBackGround(this, left, top, root == selected);
+			root.forEach(node -> node.drawBackGround(this, left, top, node == selected));
 		}
 		cut();
 	}
@@ -102,21 +105,27 @@ public class GuiRecipeTree extends GuiContainer {
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		if (!isClickOnNode(root, mouseX, mouseY)) {
-			for (TreeNode<?> node : root) {
+		if (root != null && !isClickOnNode(root, mouseX, mouseY)) {
+			for (TreeNode<ItemStack> node : root) {
 				if (isClickOnNode(node, mouseX, mouseY))
 					break;
 			}
 		}
 	}
 
-	private boolean isClickOnNode(TreeNode<?> node, int x, int y) {
+	private boolean isClickOnNode(TreeNode<ItemStack> node, int x, int y) {
+		int left = (this.width - this.xSize) / 2;
+		int top = (this.height - this.ySize) / 2;
+		x -= left;
+		y -= top;
 		int nodeX = node.getData().getX();
 		int nodeY = node.getData().getY();
 		if (x > nodeX && x < nodeX + 20 && y > nodeY && y < nodeY + 20) {
 			selected = node;
+			return true;
 		}
 		return false;
 	}
@@ -140,7 +149,6 @@ public class GuiRecipeTree extends GuiContainer {
 
 					ItemStackTreeNode treeNode = new ItemStackTreeNode(stack);
 					root.addNode(treeNode);
-					selected = treeNode;
 				}
 			}
 		} else {
@@ -170,13 +178,12 @@ public class GuiRecipeTree extends GuiContainer {
 			if (stack != null) {
 				TreeNode treeNode = new ItemStackTreeNode(stack);
 				selection.addNode(treeNode);
-				selected = treeNode;
 			}
 		}
 	}
 
 	private ItemStack getExpectedOutput() {
-		return root.getData().getData();
+		return selected != null ? selected.getData().getData() : null;
 	}
 
 	private void updateTree() {

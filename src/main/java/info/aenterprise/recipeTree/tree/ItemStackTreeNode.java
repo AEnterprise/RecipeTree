@@ -38,9 +38,9 @@ public class ItemStackTreeNode extends TreeNode<ItemStack>
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void drawBackGround(GuiScreen gui, int left, int top) {
-		gui.drawTexturedModalRect(left + data.getX(), top + data.getY(), 74, 230, 20, 20);
-    }
+	public void drawBackGround(GuiScreen gui, int left, int top, boolean selected) {
+		gui.drawTexturedModalRect(left + data.getX(), top + data.getY(), selected ? 96 : 74, 230, 20, 20);
+	}
 
 	@SideOnly(Side.CLIENT)
 	@Override

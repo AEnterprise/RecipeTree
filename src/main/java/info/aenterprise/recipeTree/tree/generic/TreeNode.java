@@ -37,7 +37,7 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	public abstract void addLeaf(T data);
 
-	public abstract void drawBackGround(GuiScreen gui, int left, int top);
+	public abstract void drawBackGround(GuiScreen gui, int left, int top, boolean selected);
 
 	public abstract void drawData(GuiScreen gui);
 
@@ -74,7 +74,7 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 	}
 
 	private void printStructure(String prefix, boolean isTail) {
-		Log.info(prefix + (parent == null ? "" : isTail ? "└── " : "├── ") + "Leaf: " + data.toString() + ", Sub-branches: " + getNumNodes() + ", layer: " + getLayer());
+		Log.info(prefix + (parent == null ? "" : isTail ? "└── " : "├── ") + "Leaf: " + data.toString() + ", Sub-branches: " + getNumNodes() + ", layer: " + getLayer() + ", width: " + data.getWidth());
 		for (int i = 0; i < subNodes.size() - 1; i++) {
 			subNodes.get(i).printStructure(prefix + (isTail ? "    " : "│   "), false);
 		}
@@ -105,10 +105,13 @@ public abstract class TreeNode<T> implements Iterable<TreeNode>, IHost
 
 	public void updatePositions()
 	{
+		int x = getData().getX() - getData().getWidth() / 2;
 		for (int i = 0; i < subNodes.size(); i++)
 		{
 			TreeNode<?> subNode = subNodes.get(i);
-			subNode.getData().setPos(getData().getX() + subNode.getData().getWidth() / 2 - getData().getWidth() / 2 + (40 * i), getData().getY() + 36);
+			x += subNode.getData().getWidth() / 2;
+			subNode.getData().setPos(x, getData().getY() + 36);
+			x += subNode.getData().getWidth() / 2;
 			subNode.updatePositions();
 		}
 	}
