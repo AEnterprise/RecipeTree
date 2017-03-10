@@ -1,0 +1,2 @@
+# RecipeTree
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c3cdf7e0604d44b88c0b7b7ad0acefac)](https://www.codacy.com/app/AEnterprise/RecipeTree?utm_source=github.com&utm_medium=referral&utm_content=AEnterprise/RecipeTree&utm_campaign=badger)
